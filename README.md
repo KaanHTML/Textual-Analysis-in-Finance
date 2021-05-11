@@ -1,5 +1,5 @@
 # Textual-Analysis-in-finance
-The four steps listed below show an overview of how I conducted a textual analysis of annual reports (10-Ks). In each of the programming files you can find a more detailed description of each step. 
+The four steps listed below show an overview of how I conducted a textual analysis of annual reports (10-Ks). In each of the programming files you can find a more detailed description. 
 
 ## Step 1 - Automatically downloading 10-Ks from SEC/Edgar
 I use the Python file code "Edgar_Forms_02.py" to automatically download 10-Ks from the first quarter in each year from 2005-2021. 
