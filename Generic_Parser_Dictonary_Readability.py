@@ -1,4 +1,7 @@
 """
+#This code is provided by Loughran & McDonald (https://sraf.nd.edu/textual-analysis/code/)
+#I have adjusted the code, to account for readability measures. 
+
 Program to provide generic parsing for all files in user-specified directory.
 The program assumes the input files have been scrubbed,
   i.e., HTML, ASCII-encoded binary, and any other embedded document structures that are not
@@ -30,7 +33,6 @@ The program outputs:
   ND-SRAF
   McDonald 2016/06 : updated 2018/03
 """
-
 import csv
 import glob
 import re
@@ -63,11 +65,13 @@ lm_dictionary = LM.load_masterdictionary(MASTER_DICTIONARY_FILE, True)
 
 
 def main(year):
-
+    
+    #specify the output directory
     f_out = open('D:/Python_10K_Analysis/Test01/Final_Parsed_Documents/' + str(year) + '.csv', 'w')
     wr = csv.writer(f_out, lineterminator='\n')
     wr.writerow(OUTPUT_FIELDS)
-
+    
+    #specify your input files, i.e. the 10-K txt files that were previously downloaded from the EDGAR server
     file_list = glob.glob('D:/Python_10K_Analysis/Test01/' + str(year) + '/*.*')
     for file in file_list:
         with open(file, 'r', encoding='UTF-8', errors='ignore') as f_in:
@@ -86,23 +90,19 @@ def main(year):
 def get_data(doc):
 
     vdictionary = {}
+    
+    #_odata will correspond to the columns (varaibles) in the excel output files 
     _odata = [0] * 22
     total_syllables = 0
     word_length = 0
     
+    #clean html structure 
     html_text = BeautifulSoup(doc, features="lxml")
     doc = html_text.get_text()
     for table in html_text.find_all("table"):
         table.extract()
-        
-    doc = (doc[1000:50000])
-        
-        
-
-
-   
-    
-    
+    #only analyse the first 50k characters and start at the 1000 character    
+    doc = (doc[1000:50000])    
     
     _odata[2] = 1
     tokens = re.findall('\w+', doc)  # Note that \w+ splits hyphenated words   
@@ -112,6 +112,7 @@ def get_data(doc):
             word_length += len(token)
             if token not in vdictionary:
                 vdictionary[token] = 1
+            #calculates dictionary-based measures
             if lm_dictionary[token].positive: _odata[3] += 1
             if lm_dictionary[token].negative: _odata[4] += 1
             if lm_dictionary[token].uncertainty: _odata[5] += 1
@@ -124,51 +125,43 @@ def get_data(doc):
             if lm_dictionary[token].syllables >=3: _odata[17] +=1
             if len(token) > 6: _odata[20] +=1
             if len(token) > 6: _odata[21] +=1
-            
-            
+              
   
     _odata[11] = len(re.findall('[A-Z]', doc))
+    
     _odata[12] = len(re.findall('[0-9]', doc))
-
-    # drop punctuation within numbers for number count
-
-    #split text into sentences
-    #list_of_sentences=re.split('(?:\.|!|\?){1,}', doc)
-    #while list_of_sentences.count("")>0:
-     #   list_of_sentences.remove("")
-    #count sentences
-    #sentence_count=len(list_of_sentences)
-
-    # Ratio of # of words over # of sentences
-    #total_words_sentence =_odata[2]/sentence_count
-     
     
     doc = re.sub('(?!=[0-9])(\.|,)(?=[0-9])', '', doc)
     phrases = sent_tokenize(str(doc))
-    sentences = (len(phrases))
+    sentences = (len(phrases)
     total_words_sentence = (_odata[2]/sentences) 
     
-    #total_words_sentence = _odata[2]/doc.count('.')
-    
+    #Readability Measures 
+    #Fog Index
     _odata[17] = 0.4*(total_words_sentence+ 100*(_odata[17] / _odata[2]))
-    print(_odata[17])
+    
+    #Flesch_Index
     _odata[18] = 206.385 - 1.015*(total_words_sentence) - 84.6*(total_syllables / _odata[2])
+    
+    #Flesch-Kincaid Index
     _odata[19] = -15.58 + 0.39 * total_words_sentence + 11.8*(total_syllables / _odata[2])
+    
+    #Lix Index 
     _odata[20] = total_words_sentence + 100 * _odata[20]/_odata[2]
+    
+    #Rix Index 
     _odata[21] = _odata[21]/((doc.count(".")+sentences)/2)
+    
     doc = doc.translate(str.maketrans(string.punctuation, " " * len(string.punctuation)))
+    
     _odata[13] = len(re.findall(r'\b[-+\(]?[$€£]?[-+(]?\d+\)?\b', doc))
+    
     _odata[14] = total_syllables / _odata[2]
+    
     _odata[15] = word_length / _odata[2]
+    
     _odata[16] = len(vdictionary)
-    
-
-
-
-    
-    
-    
-    
+ 
     
     # Convert counts to %
     for i in range(3, 10 + 1):
@@ -181,6 +174,7 @@ def get_data(doc):
 
 if __name__ == '__main__':
     print('\n' + time.strftime('%c') + '\nGeneric_Parser.py\n')
-    for year in range(2019, 2021):
+    #Run the function
+    for year in range(2006, 2021):
         main(year)
     print('\n' + time.strftime('%c') + '\nNormal termination.')
