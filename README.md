@@ -13,5 +13,5 @@ The Python code used here is the file "Generic_Parser_Dictionary_Readability.py"
 I then download yearly stock price returns of stocks listed on major U.S. stock exchanges on CapitalIQ.
 
 ## Step 4 - Condcting statistical analysis with R 
-Having all data ready to analyse, I use R to merge the datasets: I first merge the yearly textual analysis data. Finally I merge this dataset with the stock price information downloaded from CapitalIQ. Having the final dataset, I am able to condcut several analysis such as development of readability measures over time, adjustment of the language in 10-Ks in uncertain economic times, and correlation of textual measures to the subsequent stock price measures. You can find the detailed coud in the file "Updated_SentimentAnalysis_TestCode02.Rmd"
+Having all data ready to analyse, I use R to merge the datasets: I first merge the yearly textual analysis data. Finally I merge this dataset with the stock price information downloaded from CapitalIQ. Having the final dataset, I am able to condcut several analysis such as development of readability measures over time, adjustment of the language in 10-Ks in uncertain economic times, and correlation of textual measures to the subsequent stock price measures. You can find the detailed code in the file "Updated_SentimentAnalysis_TestCode02.Rmd"
 
