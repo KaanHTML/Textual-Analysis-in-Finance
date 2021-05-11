@@ -454,15 +454,15 @@ dictionary_based_pos_neg <- final_data %>%
 dictionary_based_all <- final_data %>% 
   select(c(3:10))
 readability_Fog <- final_data %>% 
-  select(c(3:3, 5:10, 17))
+  select(c(3:10, 14))
 readability_Flesch <- final_data %>% 
-  select(c(3:3, 5:10, 18))
+  select(c(3:10, 15))
 readability_Flesch_kincaid <- final_data %>% 
-  select(c(3:3, 5:10, 19))
+  select(c(3:10, 16))
 readability_Lix <- final_data %>% 
-  select(c(3:3, 5:10,20))
+  select(c(3:10,17))
 readability_Rix <- final_data %>% 
-  select(c(3:3, 5:10, 21))
+  select(c(3:10, 18))
 textual_measures_all <- final_data %>% 
   select(c(3:3, 5:10))
 
@@ -492,6 +492,8 @@ model4 <- sqrt(diag(vcovHC(model4_all_textual_methods, type = "HC1")))
 model5 <- sqrt(diag(vcovHC(model5_significant_variables, type = "HC1")))
 
 library(stargazer)
+
+### final model 
 stargazer(model2_all_dict, model3_readability_Fog,model3_readability_Flesch,model3_readability_Flesch_kincaid,model3_readability_Lix,model3_readability_Rix, 
           se=list(model2, model3_Fog,model3_Flesch, model3_Flesch_kincaid,model3_Lix, model3_Rix),
           title="Regression Results", type = "html", out = "fit_lm.html")
