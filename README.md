@@ -16,6 +16,6 @@ I then download yearly stock price returns of stocks listed on major U.S. stock 
 Having all data ready to analyse, I use R to merge the datasets: I first merge the yearly textual analysis data. Finally I merge this dataset with the stock price information downloaded from CapitalIQ. Having the final dataset, I am able to condcut several analysis such as development of readability measures over time, adjustment of the language in 10-Ks in uncertain economic times, and correlation of textual measures to the subsequent stock price measures. You can find the detailed code in the file "Updated_SentimentAnalysis_TestCode02.Rmd": 
   - line 14-207; Part 0: Preparing the Data 
   - line 211-259; Summary Statistics
-  - line 262-358: Part 1: Adjustment of language in 10Ks according to the economic development 
-  - line 363-439: Part 2: Development of complexity of 10Ks
-  - line 440-500: Part 3: Correlation between stock marekt return and textual measures
+  - line 262-358: Part 1 of empirical analysis: Adjustment of language in 10Ks according to economic development 
+  - line 363-439: Part 2 of empirical analysis: Development of complexity of 10Ks
+  - line 440-500: Part 3 of empirical analysis: Correlation between stock marekt return and textual measures
