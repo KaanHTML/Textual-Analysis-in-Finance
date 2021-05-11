@@ -1,6 +1,6 @@
 """
 #This code is provided by Loughran & McDonald (https://sraf.nd.edu/textual-analysis/code/)
-#I have adjusted the code, to account for readability measures. 
+#I have adjusted the code, to account for the html structure of the txt files (line 99 onwards) and readability measures (line 135 onwards). 
 
 Program to provide generic parsing for all files in user-specified directory.
 The program assumes the input files have been scrubbed,
