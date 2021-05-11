@@ -208,7 +208,7 @@ colnames(combined_table_cleaned)[19] <- "Flesch_Kincaid"
 ```
 
 
-#Summary Statistics
+##Summary Statistics
 ```{r}
 #remove outliers for readability
 combined_table_cleaned <- combined_table_cleaned %>%
