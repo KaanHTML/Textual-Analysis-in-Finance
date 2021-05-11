@@ -1,6 +1,6 @@
 #!/usr/bin/python3
-"""Routine to load MasterDictionary class"""
-# BDM : 201510
+"""Routine to load MasterDictionary class""" 
+#see https://sraf.nd.edu/textual-analysis/code/
 
 import time
 
