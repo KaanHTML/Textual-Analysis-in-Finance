@@ -1,0 +1,842 @@
+---
+title: "SentimentAnalysis"
+author: "KaanAbudak"
+date: "08/04/2021"
+output:
+  html_document: default
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+#read the documents
+library(ggplot2)
+
+fy2005 <- read.csv("2005.csv")
+fy2006 <- read.csv("2006.csv")
+fy2007 <- read.csv("2007.csv")
+fy2008 <- read.csv("2008.csv")
+fy2009 <- read.csv("2009.csv")
+fy2010 <- read.csv("2010.csv")
+fy2011 <- read.csv("2011.csv")
+fy2012 <- read.csv("2012.csv")
+fy2013 <- read.csv("2013.csv")
+fy2014 <- read.csv("2014.csv")
+fy2015 <- read.csv("2015.csv")
+fy2016 <- read.csv("2016.csv")
+fy2017 <- read.csv("2017.csv")
+fy2018 <- read.csv("2018.csv")
+fy2019 <- read.csv("2019.csv")
+
+
+
+fy2005$year <- 2005
+fy2006$year <- 2006
+fy2007$year <- 2007
+fy2008$year <- 2008
+fy2009$year <- 2009
+fy2010$year <- 2010
+fy2011$year <- 2011
+fy2012$year <- 2012
+fy2013$year <- 2013
+fy2014$year <- 2014
+fy2015$year <- 2015
+fy2016$year <- 2016
+fy2017$year <- 2017
+fy2018$year <- 2018
+fy2019$year <- 2019
+
+
+text = fy2005$file.name.
+new_column = sub(".*?2005(.*?)(.txt.*|$)", "\\1", text)
+fy2005$accession_id <- new_column  
+
+text = fy2006$file.name.
+new_column = sub(".*?2006(.*?)(.txt.*|$)", "\\1", text)
+fy2006$accession_id <- new_column  
+
+text = fy2007$file.name.
+new_column = sub(".*?2007(.*?)(.txt.*|$)", "\\1", text)
+fy2007$accession_id <- new_column  
+
+text = fy2008$file.name.
+new_column = sub(".*?2008(.*?)(.txt.*|$)", "\\1", text)
+fy2008$accession_id <- new_column  
+
+text = fy2009$file.name.
+new_column = sub(".*?2009(.*?)(.txt.*|$)", "\\1", text)
+fy2009$accession_id <- new_column  
+
+text = fy2010$file.name.
+new_column = sub(".*?2010(.*?)(.txt.*|$)", "\\1", text)
+fy2010$accession_id <- new_column 
+
+text = fy2011$file.name.
+new_column = sub(".*?2011(.*?)(.txt.*|$)", "\\1", text)
+fy2011$accession_id <- new_column
+
+text = fy2012$file.name.
+new_column = sub(".*?2012(.*?)(.txt.*|$)", "\\1", text)
+fy2012$accession_id <- new_column
+
+text = fy2013$file.name.
+new_column = sub(".*?2013(.*?)(.txt.*|$)", "\\1", text)
+fy2013$accession_id <- new_column
+
+text = fy2014$file.name.
+new_column = sub(".*?2014(.*?)(.txt.*|$)", "\\1", text)
+fy2014$accession_id <- new_column  
+
+text = fy2015$file.name.
+new_column = sub(".*?2015(.*?)(.txt.*|$)", "\\1", text)
+fy2015$accession_id <- new_column  
+
+text = fy2016$file.name.
+new_column = sub(".*?2016(.*?)(.txt.*|$)", "\\1", text)
+fy2016$accession_id <- new_column  
+
+text = fy2017$file.name.
+new_column = sub(".*?2017(.*?)(.txt.*|$)", "\\1", text)
+fy2017$accession_id <- new_column  
+
+text = fy2018$file.name.
+new_column = sub(".*?2018(.*?)(.txt.*|$)", "\\1", text)
+fy2018$accession_id <- new_column 
+
+text = fy2019$file.name.
+new_column = sub(".*?2019(.*?)(.txt.*|$)", "\\1", text)
+fy2019$accession_id <- new_column 
+
+
+data <- rbind(fy2006, fy2007, fy2008, fy2009, fy2010, fy2011, fy2012, fy2013, fy2014, fy2015, fy2016, fy2017, fy2018, fy2019)
+
+
+
+monthly_stock <- read.csv("Yearly_StockData.csv")
+monthly_stock$CIK_Clean <- as.character(substring(monthly_stock$CIK, 1, 10))
+
+monthly_stock$CIK_Clean <- ifelse(nchar(monthly_stock$CIK_Clean) == 10, monthly_stock$CIK_Clean, ifelse(
+  nchar(monthly_stock$CIK_Clean) == 9, paste("0", monthly_stock$CIK_Clean, sep=""),ifelse(
+  nchar(monthly_stock$CIK_Clean) == 8, paste("00", monthly_stock$CIK_Clean, sep=""),ifelse(
+  nchar(monthly_stock$CIK_Clean) == 7, paste("000", monthly_stock$CIK_Clean, sep=""),ifelse(
+  nchar(monthly_stock$CIK_Clean) == 6, paste("0000", monthly_stock$CIK_Clean, sep=""),ifelse(
+  nchar(monthly_stock$CIK_Clean) == 5, paste("00000", monthly_stock$CIK_Clean, sep=""),ifelse(
+  nchar(monthly_stock$CIK_Clean) == 4, paste("000000", monthly_stock$CIK_Clean, sep=""),ifelse(
+  nchar(monthly_stock$CIK_Clean) == 3, paste("0000000", monthly_stock$CIK_Clean, sep=""),ifelse(
+  nchar(monthly_stock$CIK_Clean) == 2, paste("00000000", monthly_stock$CIK_Clean, sep=""),ifelse(
+  nchar(monthly_stock$CIK_Clean) == 1, paste("000000000", monthly_stock$CIK_Clean, sep=""),NA))))))))))
+
+```
+
+```{r}
+#mofifying table further to get companies that are persistent in the sample from 2005-2020
+#only get the accession_number that are also available in later years
+#with this I ensure that each year we have the same companies and thus data is less prone to errors! 10 because 10 is the maxmimum count in one group
+library(dplyr)
+#I include only companies that are at least 9 years out of 12 in my sample (75%)
+data_cleaned <- data %>%
+  group_by(accession_id) %>%
+  mutate(n = n())# %>%
+  #filter(n >=10, Flesch_Index > 0)
+
+#number of unique firms beofr merging with stock market data
+data_cleaned %>%
+  distinct(accession_id) %>%
+  nrow()
+
+
+#cleaning the CIK in data
+data_cleaned$accession_id <- as.character(substring(data_cleaned$accession_id, 2, nchar(data_cleaned$accession_id)))
+
+#cleaning accession number
+data_cleaned$CIK_Clean <- ifelse(nchar(data_cleaned$accession_id) == 10, data_cleaned$accession_id, ifelse(
+  nchar(data_cleaned$accession_id) == 9, paste("0", data_cleaned$accession_id, sep=""),ifelse(
+  nchar(data_cleaned$accession_id) == 8, paste("00", data_cleaned$accession_id, sep=""),ifelse(
+  nchar(data_cleaned$accession_id) == 7, paste("000", data_cleaned$accession_id, sep=""),ifelse(
+  nchar(data_cleaned$accession_id) == 6, paste("0000", data_cleaned$accession_id, sep=""),ifelse(
+  nchar(data_cleaned$accession_id) == 5, paste("00000", data_cleaned$accession_id, sep=""),ifelse(
+  nchar(data_cleaned$accession_id) == 4, paste("000000", data_cleaned$accession_id, sep=""),ifelse(
+  nchar(data_cleaned$accession_id) == 3, paste("0000000", data_cleaned$accession_id, sep=""),ifelse(
+  nchar(data_cleaned$accession_id) == 2, paste("00000000", data_cleaned$accession_id, sep=""),ifelse(
+  nchar(data_cleaned$accession_id) == 1, paste("000000000", data_cleaned$accession_id, sep=""),NA))))))))))
+
+#Combine tables
+combined_table <- inner_join(x = data_cleaned, y = monthly_stock, by = "CIK_Clean")
+
+#number of unique firms remaining in the dataset
+combined_table %>%
+  distinct(accession_id) %>%
+  nrow()
+
+#creating the monthly stock price development in a given year
+
+combined_table <- as.data.frame(combined_table)
+
+combined_table$StockPrice <- as.numeric(ifelse(combined_table$year == 2005, combined_table[,36], 
+                                  ifelse(combined_table$year == 2006, combined_table[,37], 
+                                         ifelse(combined_table$year == 2007, combined_table[,38],
+                                                ifelse(combined_table$year == 2008, combined_table[,39],
+                                                       ifelse(combined_table$year == 2009, combined_table[,40],
+                                                              ifelse(combined_table$year == 2010, combined_table[,41],
+                                                                     ifelse(combined_table$year == 2011, combined_table[,42],
+                                                                            ifelse(combined_table$year == 2012, combined_table[,43],
+                                                                                ifelse(combined_table$year == 2013, combined_table[,44],
+                                                                                      ifelse(combined_table$year == 2014, combined_table[,45],
+                                                                                             ifelse(combined_table$year == 2015, combined_table[,46],
+                                                                                                    ifelse(combined_table$year == 2016, combined_table[,47],
+                                                                                                           ifelse(combined_table$year == 2017, combined_table[,48], ifelse(combined_table$year == 2018, combined_table[,49],ifelse(combined_table$year == 2019, combined_table[,50],NA))))))))))))))))
+                              
+
+#delete columns not needed
+
+combined_table_cleaned <- combined_table %>% select(-c(X..Change...Dividend.Adj..Day.Close.Price..03.01.2006.03.01.2007.:X..Change...Dividend.Adj..Day.Close.Price..03.01.2020.03.01.2021.))
+
+
+
+combined_table_cleaned$file.name. <- NULL
+combined_table_cleaned$CIK <- NULL
+combined_table_cleaned$CIK_Clean <- NULL
+
+
+combined_table_cleaned$Industry <- as.factor(combined_table_cleaned$Industry)
+colnames(combined_table_cleaned)[3] <- "positive[%]"
+colnames(combined_table_cleaned)[4] <- "negative[%]"
+colnames(combined_table_cleaned)[5] <- "uncertainty[%]"
+colnames(combined_table_cleaned)[6] <- "litigious[%]"
+colnames(combined_table_cleaned)[7] <- "modal.weak[%]"
+colnames(combined_table_cleaned)[8] <- "modal.moderate[%]"
+colnames(combined_table_cleaned)[9] <- "modal.strong[%]"
+colnames(combined_table_cleaned)[10] <- "constraining[%]"
+colnames(combined_table_cleaned)[11] <- "number alphabetic words"
+colnames(combined_table_cleaned)[12] <- "number digits"
+colnames(combined_table_cleaned)[13] <- "number of numbers"
+colnames(combined_table_cleaned)[14] <- "average_number_syllables/word"
+colnames(combined_table_cleaned)[15] <- "average word length"
+colnames(combined_table_cleaned)[19] <- "Flesch_Kincaid"
+```
+
+
+```{r}
+#adding the Russel Data data
+combined_table_cleaned$Russell3000 <- ifelse(combined_table_cleaned$year == 2005, 8.76, ifelse(
+  combined_table_cleaned$year == 2006, -6.4, ifelse(
+    combined_table_cleaned$year == 2007, -46.4, ifelse(
+      combined_table_cleaned$year == 2008, 59.6, ifelse(
+        combined_table_cleaned$year == 2009, 18.6, ifelse(
+          combined_table_cleaned$year == 2010, 4.7, ifelse(
+            combined_table_cleaned$year == 2011, 10.8, ifelse(
+              combined_table_cleaned$year == 2012, 25.2, ifelse(
+                combined_table_cleaned$year == 2013, 10.7, ifelse(
+                  combined_table_cleaned$year == 2014, -7.3, ifelse(
+                    combined_table_cleaned$year == 2015, 22.6,ifelse(
+                      combined_table_cleaned$year == 2016, 11.2,ifelse(
+                        combined_table_cleaned$year == 2017, 5,ifelse(
+                          combined_table_cleaned$year == 2019, 10.1,NA))))))))))))))
+
+#creating binary dependent variable
+combined_table_cleaned$MarketOutperformance <- ifelse(combined_table_cleaned$Russell3000 > combined_table_cleaned$StockPrice, 0, 1)
+#combined_table_cleaned$MarketOutperformance <- as.factor(combined_table_cleaned$MarketOutperformance)
+
+```
+
+
+```{r}
+#remove outliers for readability
+combined_table_cleaned <- combined_table_cleaned %>%
+  filter(n >=9, Flesch_Index>0)
+
+
+combined_table_cleaned %>%
+  distinct(accession_id) %>%
+  nrow()
+
+
+Q1 <- quantile(combined_table_cleaned$Fog_Index, .25, na.rm=T)
+Q3 <- quantile(combined_table_cleaned$Fog_Index, .75, na.rm=T)
+IQR <- IQR(combined_table_cleaned$Fog_Index, na.rm = T)
+
+#only keep rows in dataframe that have values within 1.5*IQR of Q1 and Q3
+data_no_outliers_readability <- subset(combined_table_cleaned, combined_table_cleaned$Fog_Index > (Q1 - 2*IQR) & combined_table_cleaned$Fog_Index< (Q3 + 2*IQR))
+
+#remove outlieres stocks
+Q1 <- quantile(data_no_outliers_readability$StockPrice, .25, na.rm=T)
+Q3 <- quantile(data_no_outliers_readability$StockPrice, .75, na.rm=T)
+IQR <- IQR(data_no_outliers_readability$StockPrice, na.rm = T)
+
+#only keep rows in dataframe that have values within 1.5*IQR of Q1 and Q3
+data_no_outliers_readability_stock <- subset(data_no_outliers_readability, data_no_outliers_readability$StockPrice > (Q1 -2*IQR) & data_no_outliers_readability$StockPrice< (Q3 + 2*IQR))
+
+
+final_data <- data_no_outliers_readability_stock
+
+library(pastecs)
+as.data.frame(round(stat.desc(final_data[1:21]),2))
+
+
+final_data %>%
+  distinct(accession_id) %>%
+  nrow()
+```
+
+
+
+```{r}
+library(psych)
+final_data$`number alphabetic words` <- NULL
+final_data$`number digits` <- NULL
+final_data$`number of numbers` <- NULL
+df <- round(describe(final_data[3:18]),2)
+write.csv(df, "summary_statistics.csv")
+```
+
+```{r}
+#analysis of dictionary-based methods
+windowsFonts(A = windowsFont("Times New Roman"))
+
+dictionary_year_development <- final_data %>%
+  group_by(year) %>%
+  summarise(positive= mean(`positive[%]`), negative = mean(`negative[%]`), uncertainty = mean(`uncertainty[%]`), 
+            litigious = mean(`litigious[%]`), modal.weak=mean(`modal.weak[%]`), modal.moderat = mean(`modal.moderate[%]`), 
+              modal.strong = mean(`modal.strong[%]`), constraining = mean(`constraining[%]`))
+
+write.csv(dictionary_year_development, file = "development_dictionary_based_measures.csv")
+
+ggplot(dictionary_year_development, aes(x=year)) + 
+  geom_line(aes(y = negative, color = "negative words"), linetype="solid") +
+  geom_line(aes(y = positive+0.3,  color = "positive words"), linetype = "solid") +
+    scale_y_continuous(
+    
+    # Features of the first axis
+    name = "Percent negative words",
+    
+    # Add a second axis and specify its features
+    sec.axis = sec_axis(~.-0.3, name="Percent positive words")
+  ) +
+  scale_x_continuous(breaks = c(2006:2019)) + 
+  labs(x="year", y = "Percent negative words")+
+  theme_classic()+
+  theme(text = element_text(family = "A", size = 14))+
+  ggsave("PositiveNegativeDevelopment.jpeg", plot = last_plot(), device = NULL, path = NULL,
+       scale = 1, width = 10, height = 6, dpi = 300, limitsize = TRUE, units = c("in", "cm", "mm"))
+  
+
+#no reasanable relationship for these one. I do not know what happend before 2005, however
+# one can definitly see a increase due to the financial crisis of two measures. 
+
+ggplot(dictionary_year_development, aes(x = year)) +
+  #geom_line(aes(y= uncertainty, color= "uncertainty words")) +
+  geom_line(aes(y = constraining, color = "constraining words")) +
+  geom_line(aes(y = uncertainty, color = "uncertainty words")) +
+  geom_line(aes(y = litigious, color = "litigious words")) +
+  scale_x_continuous(breaks = c(2006:2019)) + 
+  theme_classic()+
+  theme(text = element_text(family = "A", size = 14))+
+  labs(x="year", y = "Percent of words [%]")+
+  ggsave("Uncertainty_Co_Development.jpeg", plot = last_plot(), device = NULL, path = NULL,
+       scale = 1, width = 10, height = 6, dpi = 300, limitsize = TRUE, units = c("in", "cm", "mm"))
+
+ggplot(dictionary_year_development, aes(x = year)) +
+  #geom_line(aes(y= uncertainty, color= "uncertainty words")) +
+  geom_line(aes(y = modal.weak, color = "modal.weak words")) +
+  geom_line(aes(y = modal.moderat, color = "modal.moderat words")) +
+  geom_line(aes(y = modal.strong, color = "modal.strong words")) +
+  scale_x_continuous(breaks = c(2006:2019)) + 
+  theme_classic()+
+  theme(text = element_text(family = "A", size = 14))+
+  labs(x="year", y = "Percent of words [%]")+
+  ggsave("Modal_Co_Development.jpeg", plot = last_plot(), device = NULL, path = NULL,
+       scale = 1, width = 10, height = 6, dpi = 300, limitsize = TRUE, units = c("in", "cm", "mm"))
+
+
+for (i in 2:9) {
+  dictionary_year_development[i] <- (dictionary_year_development[i]/lag(dictionary_year_development[i],1)-1)*100
+}
+
+#those are the changes to the prior year 
+
+
+dictionary_year_development <- dictionary_year_development[-c(1),]
+
+ggplot(dictionary_year_development, aes(x=year)) + 
+  geom_line(aes(y = positive,  color = "positive words"), linetype = "solid") + 
+  geom_line(aes(y = negative, color = "negative words"), linetype="solid") +
+  scale_x_continuous(breaks = c(2006:2019)) + 
+  labs(x="year", y = "YoY change [%]")+
+  theme_classic()+
+  theme(text = element_text(family = "A", size = 14))+
+  ggsave("PositiveNegative.jpeg", plot = last_plot(), device = NULL, path = NULL,
+       scale = 1, width = 10, height = 6, dpi = 300, limitsize = TRUE, units = c("in", "cm", "mm"))
+  
+
+#no reasanable relationship for these one. I do not know what happend before 2005, however
+# one can definitly see a increase due to the financial crisis of two measures. 
+
+ggplot(dictionary_year_development, aes(x = year)) +
+  geom_line(aes(y= uncertainty, color= "uncertainty words")) +
+  geom_line(aes(y = constraining, color = "constraining words")) +
+  geom_line(aes(y = modal.weak, color = "modal.weak words")) +
+  geom_line(aes(y = litigious, color = "litigious words")) +
+  geom_line(aes(y = modal.strong, color = "modal.strong words")) +
+  scale_x_continuous(breaks = c(2006:2019)) + 
+  labs(x="year", y = "YoY change [%]")+
+  theme_classic()+
+  theme(text = element_text(family = "A", size = 14))+
+  ggsave("Uncertainty_Co.jpeg", plot = last_plot(), device = NULL, path = NULL,
+       scale = 1, width = 10, height = 6, dpi = 300, limitsize = TRUE, units = c("in", "cm", "mm"))
+  
+
+```
+```{r}
+#readability graphs
+library(ggplot2)
+windowsFonts(A = windowsFont("Times New Roman"))
+final_data %>%
+  group_by(year) %>%
+  summarize(Fog_Index = mean(Fog_Index, na.rm = T)) %>%
+  ggplot(aes(year, Fog_Index)) +
+  geom_line() +
+  theme_classic()+
+  scale_x_continuous(breaks = c(2005:2020))+
+  geom_point() +
+  theme(text = element_text(family = "A", size = 16))+
+  labs(x="year", y = "Mean Fog_Index")+
+  ggsave("Fog_Index.jpeg", plot = last_plot(), device = NULL, path = NULL,
+       scale = 1, width = 10, height = 6, dpi = 300, limitsize = TRUE, units = c("in", "cm", "mm"))
+
+final_data %>%
+  group_by(year) %>%
+  summarize(Flesch_Index = mean(Flesch_Index, na.rm = T)) %>%
+  ggplot(aes(year, Flesch_Index)) +
+  geom_line() +
+  theme_classic()+
+  scale_x_continuous(breaks = c(2005:2020))+
+  geom_point() +
+  theme(text = element_text(family = "A", size = 16))+
+  labs(x="year", y = "Mean Flesch_Index")+
+  ggsave("Flesch_Index.jpeg", plot = last_plot(), device = NULL, path = NULL,
+       scale = 1, width = 10, height = 6, dpi = 300, limitsize = TRUE, units = c("in", "cm", "mm"))
+
+
+final_data %>%
+  group_by(year) %>%
+  summarize(Flesch_Kincaid = mean(Flesch_Kincaid, na.rm = T)) %>%
+  ggplot(aes(year, Flesch_Kincaid)) +
+  geom_line() +
+  theme_classic()+
+  scale_x_continuous(breaks = c(2005:2020))+
+  geom_point() +
+  theme(text = element_text(family = "A", size = 16))+
+  labs(x="year", y = "Mean Flesch_Kincaid_Index")+
+  ggsave("Flesch_Kincaid_Index.jpeg", plot = last_plot(), device = NULL, path = NULL,
+       scale = 1, width = 10, height = 6, dpi = 300, limitsize = TRUE, units = c("in", "cm", "mm"))
+
+final_data %>%
+  group_by(year) %>%
+  summarize(Lix_Index = mean(Lix.Index, na.rm = T)) %>%
+  ggplot(aes(year, Lix_Index)) +
+  geom_line() +
+  theme_classic()+
+  scale_x_continuous(breaks = c(2005:2020))+
+  geom_point() +
+  theme(text = element_text(family = "A", size = 16))+
+  labs(x="year", y = "Mean Lix_Index")+
+  ggsave("Lix_Index.jpeg", plot = last_plot(), device = NULL, path = NULL,
+       scale = 1, width = 10, height = 6, dpi = 300, limitsize = TRUE, units = c("in", "cm", "mm"))
+
+final_data %>%
+  group_by(year) %>%
+  summarize(Rix_Index = mean(Rix.Index, na.rm = T)) %>%
+  ggplot(aes(year, Rix_Index)) +
+  geom_line() +
+  theme_classic()+
+  scale_x_continuous(breaks = c(2005:2020))+
+  geom_point() +
+  theme(text = element_text(family = "A", size = 16))+
+  labs(x="year", y = "Mean Rix_Index")+
+  ggsave("Rix_Index.jpeg", plot = last_plot(), device = NULL, path = NULL,
+       scale = 1, width = 10, height = 6, dpi = 300, limitsize = TRUE, units = c("in", "cm", "mm"))
+
+table <- final_data %>%
+     group_by(year) %>%
+     summarize(Fog= mean(Fog_Index), Flesch = mean(Flesch_Index), Flesch_Kincaid = mean(Flesch_Kincaid), Rix = mean(Rix.Index), Lix = mean(Lix.Index))
+
+write.csv(table, file="readability_measures.csv")
+```
+
+```{r}
+#Regression results for last chapter in thesis
+
+final_data$year <- NULL
+final_data$file.size. <- (final_data$file.size.)
+final_data$number.of.words. <- log(final_data$`number of numbers`)
+colnames(final_data)[2] <- "log(number of words)" 
+
+
+
+
+dictionary_based_pos_neg <- final_data %>% 
+  select(c(4))
+dictionary_based_all <- final_data %>% 
+  select(c(3:10))
+readability_Fog <- final_data %>% 
+  select(c(3:3, 5:10, 17))
+readability_Flesch <- final_data %>% 
+  select(c(3:3, 5:10, 18))
+readability_Flesch_kincaid <- final_data %>% 
+  select(c(3:3, 5:10, 19))
+readability_Lix <- final_data %>% 
+  select(c(3:3, 5:10,20))
+readability_Rix <- final_data %>% 
+  select(c(3:3, 5:10, 21))
+textual_measures_all <- final_data %>% 
+  select(c(3:3, 5:10))
+
+
+model1_pos_neg <- lm(final_data$StockPrice ~ . , data = dictionary_based_pos_neg)
+model2_all_dict <- lm(final_data$StockPrice ~ .  , data = dictionary_based_all)
+model3_readability_Fog <- lm(final_data$StockPrice ~ . , data = readability_Fog)
+model3_readability_Flesch <- lm(final_data$StockPrice ~ . , data = readability_Flesch)
+model3_readability_Flesch_kincaid <- lm(final_data$StockPrice ~ . , data = readability_Flesch_kincaid)
+model3_readability_Lix <- lm(final_data$StockPrice ~ . , data = readability_Lix)
+model3_readability_Rix <- lm(final_data$StockPrice ~ . , data = readability_Rix)
+model4_all_textual_methods <- lm(final_data$StockPrice ~ ., data = textual_measures_all)
+model5_significant_variables <- lm(final_data$StockPrice ~  +  `modal.weak[%]` +
+                                     `modal.moderate[%]`+ `modal.strong[%]` + Fog_Index  +`constraining[%]` + `uncertainty[%]`+ `positive[%]`,final_data)
+
+
+
+library(sandwich)
+model1<- sqrt(diag(vcovHC(model1_pos_neg, type = "HC1")))
+model2 <- sqrt(diag(vcovHC(model2_all_dict, type = "HC1")))
+model3_Fog <- sqrt(diag(vcovHC(model3_readability_Fog, type = "HC1")))
+model3_Flesch <- sqrt(diag(vcovHC(model3_readability_Flesch, type = "HC1")))
+model3_Flesch_kincaid <- sqrt(diag(vcovHC(model3_readability_Flesch_kincaid, type = "HC1")))
+model3_Lix <- sqrt(diag(vcovHC(model3_readability_Lix, type = "HC1")))
+model3_Rix <- sqrt(diag(vcovHC(model3_readability_Rix, type = "HC1")))
+model4 <- sqrt(diag(vcovHC(model4_all_textual_methods, type = "HC1")))
+model5 <- sqrt(diag(vcovHC(model5_significant_variables, type = "HC1")))
+
+library(stargazer)
+stargazer(model2_all_dict, model3_readability_Fog,model3_readability_Flesch,model3_readability_Flesch_kincaid,model3_readability_Lix,model3_readability_Rix, 
+          se=list(model2, model3_Fog,model3_Flesch, model3_Flesch_kincaid,model3_Lix, model3_Rix),
+          title="Regression Results", type = "html", out = "fit_lm.html")
+
+
+```
+
+
+```{}
+# price development 
+#modifying col_names: 2007 means for example the period from 2006-2007, and thus is referred to the FY2005 annual reports since they get available no earlier than 1/3/2006. Holding period 1 year (12months) from 1/3/2006-1/3/2007 for the example of FY2005 annaul reports.
+for (i in 36:50) {
+  colnames(combined_table)[i] = paste ("Year", substring(right(colnames(combined_table)[i], 5), 1,4), sep="")
+}
+
+
+combined_table$Stock_Price_Development <- ifelse(combined_table$year == 2005, combined_table$Year2007, ifelse(
+  combined_table$year == 2006, combined_table$Year2008, ifelse(
+    combined_table$year == 2007, combined_table$Year2009, ifelse(
+      combined_table$year == 2008, combined_table$Year2010, ifelse(
+        combined_table$year == 2009, combined_table$Year2011, ifelse(
+          combined_table$year == 2010, combined_table$Year2012, ifelse(
+            combined_table$year == 2011, combined_table$Year2013, ifelse(
+              combined_table$year == 2012, combined_table$Year2014, ifelse(
+                combined_table$year == 2013, combined_table$Year2015, ifelse(
+                  combined_table$year == 2014, combined_table$Year2016, NA))))))))))
+
+
+
+```
+
+```{}
+library(dplyr)
+data %>%
+  filter(Fog_Index < 40) %>%
+  group_by(year) %>%
+  summarise(FOG_mean = mean(Fog_Index), n= n()) %>%
+  ggplot(aes(year, FOG_mean))+
+  geom_line()
+
+
+data <- data%>%
+  group_by(accession_id) %>%
+  mutate(n = n())
+
+data_1 <- data %>%
+  filter(n>=7)
+  
+  
+data_1 %>%
+  filter(n >= 8) %>%
+  group_by(year) %>%
+  summarise(FOG_mean = mean(Fog_Index), n= n()) %>%
+  ggplot(aes(year, FOG_mean))+
+  geom_line()
+#ggplot(test_02, aes(x=year, y=FOG_mean)) +
+ #   geom_line()
+
+```
+
+
+
+
+```{}
+#some statistics
+table_1 <- data_cleaned %>%
+	group_by(year) %>%
+	summarise(mean_run = mean((file.size.)/1000000))
+  
+write.csv(table_1, file = "table_1.csv")
+
+#par(family="Times")
+windowsFonts(A = windowsFont("Times New Roman"))
+ggplot(data = table_1, aes(x=as.integer(year), y= mean_run))+
+    geom_line() +
+    theme_classic() +
+    theme(text = element_text(family = "A", size = 16))+
+    labs(y="Average File Size (mio kilobyte)", x = "Year")+
+    ggsave("Plot_FileSizeOverYears.jpeg", plot = last_plot(), device = NULL, path = NULL,
+       scale = 1, width = 10, height = 6, dpi = 300, limitsize = TRUE, units = c("in", "cm", "mm"))
+
+#compare average word length in 2012 in a graph --> relationship also holds for the other years!
+plot1 <- ggplot(data=data_cleaned[data_cleaned$year==2012,], aes(x=log(file.size.), y=log(number.of.words.))) +
+  geom_jitter(alpha=1) +
+  geom_smooth(method="lm") +
+  theme_classic()+
+  theme(text = element_text(family = "A", size = 16))+
+  labs(y="Average number of words (log. value)", x = "Average file size (log. value)")+
+  ggsave("FileSize_NumberWords.jpeg", plot = last_plot(), device = NULL, path = NULL,
+       scale = 1, width = 10, height = 6, dpi = 300, limitsize = TRUE, units = c("in", "cm", "mm"))
+
+
+
+#only continuing with the companies that persist in the following years
+#merged_table <- merge(x = fy2005, y = fy2006, by = "accession_id")
+#merged_table <- merge(x = merged_tabe, y = fy2007, by = "accession_id")
+```
+
+
+```{}
+#manually write S&P 500 perfromance in thtat year
+
+
+
+#testing if stock outperformed market: 0 if did not beat SP500, and 1 if id did beat the index
+combined_table$MarketOutperformance <- ifelse(combined_table$SP500 > combined_table$Stock_Price_Development, 0, 1)
+combined_table$MarketOutperformance <- as.factor(combined_table$MarketOutperformance)
+#
+combined_table$X..uncertainty.lagged <- lag(combined_table$X..uncertainty., 1)
+
+combined_table$X..negative..lagged <- lag(combined_table$X..negative., 1)
+
+combined_table$X..positive..lagged <- lag(combined_table$X..positive., 1)
+
+combined_table$change_uncertainty <- combined_table$X..uncertainty. - combined_table$X..uncertainty.lagged
+
+combined_table$change_negative <- combined_table$X..negative. - combined_table$X..negative..lagged
+
+combined_table$change_positive <- combined_table$X..positive. - combined_table$X..positive..lagged
+
+combined_table[is.na(combined_table)] = 0
+
+
+CATCompany_Example <- filter(combined_table, CIK_Clean == "0000018230")
+
+'combined_table %>%
+  filter(as.numeric(Stock_Price_Development) < 100) %>%
+  ggplot(aes(x=log(file.size.), y=(as.numeric(Stock_Price_Development)), color = MarketOutperformance)) + 
+  geom_point(method = "lm")
+'
+
+combined_table$Percentile_Negative <-  percent_rank(combined_table$X..negative.)
+#combined_table$Percentile_Negative
+
+combined_table$Percentile_Negative <- ifelse(combined_table$Percentile_Negative < 0.1, 1,
+                                             ifelse(combined_table$Percentile_Negative >= 0.10 & combined_table$Percentile_Negative < 0.20, 2, 
+                                                    ifelse(combined_table$Percentile_Negative >= 0.20 & 
+                                                                  combined_table$Percentile_Negative < 0.30, 3, 
+                                                                    ifelse(combined_table$Percentile_Negative >=0.30  & combined_table$Percentile_Negative <0.4, 4, ifelse(combined_table$Percentile_Negative >=0.4 & combined_table$Percentile_Negative < 0.5, 5, ifelse(combined_table$Percentile_Negative >=0.5 & combined_table$Percentile_Negative < 0.6, 6, ifelse(combined_table$Percentile_Negative >=0.6 & combined_table$Percentile_Negative < 0.7, 7, ifelse(combined_table$Percentile_Negative >=0.7 & combined_table$Percentile_Negative < 0.8, 8, ifelse(combined_table$Percentile_Negative >= 0.8 & combined_table$Percentile_Negative < 0.9, 9, ifelse(combined_table$Percentile_Negative >=0.9, 10,NA))))))))))
+
+combined_table$Percentile_Negative <- as.factor(combined_table$Percentile_Negative)
+#combined_table$Percentile_Negative
+
+#normalize data
+#normalize <- function(x) {
+#  (x - min(x)) / (max(x) - min(x))
+#}
+
+#str(combined_table)
+#combined_table_n <- as.data.frame(lapply(combined_table[1:ncol(combined_table)], normalize))
+```
+
+
+
+```{}
+combined_table %>%
+  group_by(year) %>%
+  summarise(average_modal_weak = mean(X..modal.weak.)) %>%
+  ggplot(aes(year,average_modal_weak)) + 
+    geom_line()
+
+combined_table %>%
+  group_by(year) %>%
+  summarise(average_litigious_words = mean(X..litigious.)) %>%
+  ggplot(aes(year,average_litigious_words)) + 
+    geom_line()
+
+combined_table %>%
+  group_by(year) %>%
+  summarise(average_file.size. = mean(file.size.)) %>%
+  ggplot(aes(year,average_file.size.)) + 
+    geom_line()
+
+combined_table %>%
+  group_by(year) %>%
+  summarise(number.of.words. = mean(number.of.words.)) %>%
+  ggplot(aes(year,number.of.words.)) + 
+    geom_line()
+
+combined_table %>%
+  group_by(year) %>%
+  summarise(positive_words = mean(X..positive.)) %>%
+  ggplot(aes(year,positive_words)) + 
+    geom_line()
+
+combined_table %>%
+  group_by(year) %>%
+  summarise(negative_words = mean(X..negative.)) %>%
+  ggplot(aes(year,negative_words)) + 
+    geom_line()
+
+combined_table %>%
+  group_by(year) %>%
+  summarise(uncertainty_words = mean(X..uncertainty.)) %>%
+  ggplot(aes(year,uncertainty_words)) + 
+    geom_line()
+
+combined_table %>%
+  group_by(year) %>%
+  summarise(strong_modal_word = mean(X..modal.strong.)) %>%
+  ggplot(aes(year,strong_modal_word)) + 
+    geom_line()
+
+combined_table %>%
+  group_by(year) %>%
+  summarise(constraining = mean(X..constraining.)) %>%
+  ggplot(aes(year,constraining)) + 
+    geom_line()
+
+combined_table %>%
+  group_by(year) %>%
+  summarise(alphabetic = mean(X..of.alphabetic.)) %>%
+  ggplot(aes(year,alphabetic)) + 
+    geom_line()
+
+combined_table %>%
+  group_by(year) %>%
+  summarise(complex_words = mean(avg...of.syllables.per.word.)) %>%
+  ggplot(aes(year,complex_words)) + 
+    geom_line()
+
+combined_table %>%
+  group_by(year) %>%
+  summarise(word_length = mean(average.word.length.)) %>%
+  ggplot(aes(year,word_length)) + 
+    geom_line()
+
+combined_table %>%
+  group_by(year) %>%
+  summarise(vocabulary_used = mean(vocabulary)) %>%
+  ggplot(aes(year,vocabulary_used)) + 
+    geom_line()
+
+combined_table %>%
+  group_by(year) %>%
+  summarise(word_length = mean(average.word.length.)) %>%
+  ggplot(aes(year,word_length)) + 
+    geom_line()
+
+#change in negativity kann vorhersagen ob es kracht!!
+combined_table %>%
+  group_by(year) %>%
+  summarise(negative_change = mean(change_negative)) %>%
+  ggplot(aes(year,negative_change)) + 
+    geom_line()
+
+combined_table %>%
+  group_by(year) %>%
+  summarise(psoitive_change = mean(change_positive)) %>%
+  ggplot(aes(year,psoitive_change)) + 
+    geom_line()
+
+summary(combined_table$Percentile_Negative)
+
+
+combined_table$Stock_Price_Development <- ifelse(combined_table$Stock_Price_Development == "-", 0,combined_table$Stock_Price_Development)
+
+#positiver wert bei change_negative heißt, dass die Anzahl der negativen Wörter gestiegen ist 
+combined_table %>%
+  group_by(MarketOutperformance, year) %>%
+  summarise(mean_change_negative_words = mean(change_negative, na.rm = T))%>%
+  ggplot(aes(x=year, y=mean_change_negative_words, color=MarketOutperformance)) +
+    geom_line()+
+  ggsave("ChangeNegativeWords.jpeg", plot = last_plot(), device = NULL, path = NULL,
+       scale = 1, width = 10, height = 6, dpi = 300, limitsize = TRUE, units = c("in", "cm", "mm"))
+
+str(combined_table)
+
+
+
+#creating similar to LM Quantiles of negative words
+combined_table$Negative_Quantiles <- ifelse(combined_table$X..negative. >= quantile(combined_table$X..negative.)[1] &
+                                                     combined_table$X..negative. < quantile(combined_table$X..negative.)[2], 1,
+                                                   ifelse(combined_table$X..negative. >= quantile(combined_table$X..negative.)[2] & 
+                                                            combined_table$X..negative. < 
+                                                            quantile(combined_table$X..negative.)[3], 2,
+                                                          ifelse(combined_table$X..negative. >= quantile(combined_table$X..negative.)[3] &
+                                                                   combined_table$X..negative. < quantile(combined_table$X..negative.)[4], 3, 
+                                                                 ifelse(combined_table$X..negative. >= quantile(combined_table$X..negative.)[4] &
+                                                                   combined_table$X..negative. < quantile(combined_table$X..negative.)[5], 4,
+                                                                   ifelse(combined_table$X..negative. >=
+                                                                            quantile(combined_table$X..negative.)[5], 5, NA)))))
+
+
+
+##kannst du so nicth rechnern, da du in jedem Jahr die Quintiles ausrechnenn musst und danach sortieren!
+
+combined_table$Negative_Quantiles <- as.factor(combined_table$Negative_Quantiles)                                                            
+
+ggplot(combined_table, aes(x=Negative_Quantiles, y=Stock_Price_Development)) +
+  geom_point()
+
+combined_table %>%
+  group_by(year, Negative_Quantiles) %>%
+  summarise(mean = mean(Stock_Price_Development)) %>%
+  ggplot(aes(x=year, y=mean)) + 
+  geom_point()
+
+combined_table %>%
+  filter(Negative_Quantiles==1) %>%
+  group_by(year) %>%
+  summarise(mean = mean(Stock_Price_Development, na.rm = T)) %>%
+  ggplot(aes(x=year,y=mean)) + 
+    geom_line()
+
+
+
+qqplot(combined_table$Stock_Price_Development,combined_table$X..negative., main="Plot")#
+
+combined_table %>%
+  group_by(year) %>%
+  summarise(n = n())
+
+lm_model <- lm(MarketOutperformance ~., data = combined_table)
+
+
+```
+
+
+
