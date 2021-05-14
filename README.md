@@ -13,7 +13,7 @@ The Python code used for the parsing procedure is the file "Generic_Parser_Dicti
 I then download yearly stock price returns of stocks listed on major U.S. stock exchanges on CapitalIQ.
 
 ## Step 4 - Conducting statistical analysis with R 
-Having all data ready to analyse, I use R to merge the datasets: I first merge the yearly textual analysis data. Finally I merge this dataset with the stock price information downloaded from CapitalIQ. Having the final dataset, I am able to condcut several analysis such as development of readability measures over time, adjustment of the language in 10-Ks in uncertain economic times, and correlation of textual measures to the subsequent stock price measures. You can find the detailed code of the statistical analysis in the file "Updated_SentimentAnalysis_TestCode02.Rmd": 
+Having all data ready to analyse, I use R to merge the datasets: I first merge the yearly textual analysis data. Finally I merge this dataset with the stock price information downloaded from CapitalIQ. Having the final dataset, I am able to conduct several analysis such as development of readability measures over time, adjustment of the language in 10-Ks in uncertain economic times, and correlation of textual measures to the subsequent stock price measures. You can find the detailed code of the statistical analysis in the file "Updated_SentimentAnalysis_TestCode02.Rmd": 
   - line 14-207; Part 0: Preparing the Data 
   - line 211-259; Summary Statistics
   - line 262-358: Part 1 of empirical analysis: Adjustment of language in 10Ks according to economic development 
