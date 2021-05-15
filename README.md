@@ -2,7 +2,7 @@
 The four steps listed below show an overview of how I conducted a textual analysis of annual reports (10-Ks). In each of the programming files you can find a more detailed description. I use Python to download and parse the 10-Ks and R to conduct the statistical analysis. 
 
 ## Step 1 - Automatically downloading 10-Ks from SEC/EDGAR server
-I use the Python file code "Edgar_Forms_02.py" to automatically download 10-Ks from the first quarter in each year from 2005-2021. 
+I use the Python file code "Edgar_Forms_02.py" to automatically download 10-Ks from the first quarter in each year from 2006-2019. 
 For each year a folder is created, in which the respective 10-Ks can be found as text files (those text files are not uploaded in the repository).
 
 ## Step 2 - Parsing 10-Ks to get textual analysis measures
